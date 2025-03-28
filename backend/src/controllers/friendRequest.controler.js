@@ -114,8 +114,6 @@ export const getSentFriendRequests = async (req, res) => {
         }).populate('receiverId', 'fullName');
 
         res.status(200).json(friendRequests);
-
-
     } catch (error) {
         console.log("Error in  getFriendRequest controller: ", error.message);
         res.status(500).json({message: "Internal Server Error"});
