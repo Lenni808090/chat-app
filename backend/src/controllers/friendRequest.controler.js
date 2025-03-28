@@ -1,4 +1,4 @@
-import FriendRequest from "../models/friendrequest.model";
+import FriendRequest from "../models/friendrequest.model.js";
 import User from "../models/user.model.js";
 
 export const sendFriendRequest = async (req, res) => {
@@ -111,7 +111,7 @@ export const getSentFriendRequests = async (req, res) => {
         const friendRequests = await FriendRequest.find({
             senderId: myId,
             status: "pending"
-        }).populate('senderId', 'fullName');
+        }).populate('receiverId', 'fullName');
 
         res.status(200).json(friendRequests);
 
