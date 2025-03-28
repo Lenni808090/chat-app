@@ -2,12 +2,12 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 
-export const useFriendStore = create((set,get) => ({
+
+export const useFriendStore = create((set, get) => ({
     FriendRequests: [],
     sentRequests: [],
     isLoading: [],
-    selectedUser: null,
-
+    
 
 
     getFriendRequests: async () => {
@@ -39,18 +39,46 @@ export const useFriendStore = create((set,get) => ({
         }
     },
 
-    sendFriendRequests: async () => {
-        const selectedUser = get().selectedUser;
-
+    sendFriendRequests: async (selectedUser) => {
         try {
+            
             await axiosInstance.post(`/friend-requests/send/${selectedUser._id}`)
+            
         } catch {
+
             toast.error("error while sending message")
+
         }
     },
 
-    setSelectedUser(currentSelectedUser){
-        set({ selectedUser: currentSelectedUser });
-    }
+    acceptFriendRequest: async (selectedUser) => {
+        const FriendRequests = get().FriendRequests;
+        try {
+            await axiosInstance.post(`/friend-requests/accept/${selectedUser._id}`);        
+            set({
+                FriendRequests: FriendRequests.filter(request => 
+                    request.senderId._id !== selectedUser._id
+                )
+            });
+        } catch {
+            toast.error("error accepting friend request");
+        }
+    },
+
+
+    rejectFriendRequests: async (selectedUser) => {
+        const FriendRequests = get().FriendRequests;
+        try {
+            await axiosInstance.post(`/friend-requests/reject/${selectedUser._id}`);        
+            set({
+                FriendRequests: FriendRequests.filter(request => 
+                    request.senderId._id !== selectedUser._id
+                )
+            });
+        } catch {
+            toast.error("error rejecting friend request");
+        }
+    },
+    
 
 }));

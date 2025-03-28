@@ -11,7 +11,7 @@ import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 import { useThemeStore } from "./store/useThemeStore";
-
+import FriendRequestsPage from "./pages/FriendRequestPage";
 const App = () => {
   const { theme } = useThemeStore();
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -50,6 +50,7 @@ const App = () => {
         <Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
         <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
         <Route path='/profile' element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+        <Route path="/friend-requests" element={<FriendRequestsPage />} />
       </Routes>
       <Toaster
         position="top-center"

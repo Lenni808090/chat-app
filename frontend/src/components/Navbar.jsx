@@ -1,10 +1,11 @@
 import { useAuthStore } from "../store/useAuthStore.js";
 import { Link } from "react-router-dom";
 import { LogOut, MessageSquare, Settings, User } from "lucide-react";
-
+import { useFriendStore } from "../store/useFriendStore";
 
 const Navbar = () => {
   const { logout, authUser } = useAuthStore();
+  const { FriendRequests } = useFriendStore();
 
   return (
     <header
@@ -14,13 +15,25 @@ const Navbar = () => {
       <div className="container mx-auto px-4 h-16">
         <div className="flex items-center justify-between h-full">
           <div className="flex items-center gap-8">
-            <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-all">
+            <Link
+              to="/"
+              className="flex items-center gap-2.5 hover:opacity-80 transition-all"
+            >
               <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
                 <MessageSquare className="w-5 h-5 text-primary" />
               </div>
               <h1 className="text-lg font-bold">OfB Lounge</h1>
             </Link>
           </div>
+
+          <Link to="/friend-requests" className="relative">
+            Friend Requests
+            {FriendRequests.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-primary text-primary-content rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                {FriendRequests.length}
+              </span>
+            )}
+          </Link>
 
           <div className="flex items-center gap-2">
             <Link
