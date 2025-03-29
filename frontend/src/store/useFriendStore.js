@@ -1,13 +1,14 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
+import { useAuthStore } from "./useAuthStore.js";
 
 
 export const useFriendStore = create((set, get) => ({
     FriendRequests: [],
     sentRequests: [],
     isLoading: [],
-    
+    searchResults: [],
 
 
     getFriendRequests: async () => {
@@ -43,16 +44,19 @@ export const useFriendStore = create((set, get) => ({
         try {
             
             await axiosInstance.post(`/friend-requests/send/${selectedUser._id}`)
-            
-        } catch {
+            toast.success("Friend Request succesfully send");
 
-            toast.error("error while sending message")
+        } catch (error){
+
+            const errorMessage = error.response?.data?.message || "Failed to send friend request";
+            toast.error(errorMessage);
 
         }
     },
 
     acceptFriendRequest: async (selectedUser) => {
         const FriendRequests = get().FriendRequests;
+        const { socket } = useAuthStore.getState();
         try {
             await axiosInstance.post(`/friend-requests/accept/${selectedUser._id}`);        
             set({
@@ -60,6 +64,15 @@ export const useFriendStore = create((set, get) => ({
                     request.senderId._id !== selectedUser._id
                 )
             });
+
+
+            if(socket){
+                socket.emit("friendRequestAccepted", {
+                    senderId: selectedUser._id,
+                });
+            }
+
+            
         } catch {
             toast.error("error accepting friend request");
         }
@@ -80,5 +93,25 @@ export const useFriendStore = create((set, get) => ({
         }
     },
     
+    searchUsers: async (searchQuery) => {
+        //falls nichts eingegeben ist
+        if(!searchQuery.trim()){
+            set({ searchResults: []});
+            return
+        }
+
+        set({isLoading: true});
+
+        try {
+            const  searchedUsers = await axiosInstance.get(`/friend-requests/search/users?search=${searchQuery}`);
+            set({searchResults: searchedUsers.data});
+        } catch (error){
+            console.error('Error searching users:', error);
+            toast.error("Error searching for users");
+        }finally{
+            set({isLoading: false});
+        }
+ 
+    }
 
 }));

@@ -3,7 +3,7 @@ import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users } from "lucide-react";
-import NewChatModal from "./AddFriends";
+import AddFriends from "./AddFriends";
 
 const Sidebar = () => {
   const {
@@ -162,7 +162,7 @@ const Sidebar = () => {
         )}
       </div>
 
-      <NewChatModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <AddFriends isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
       <button 
         onClick={() => setIsModalOpen(true)}

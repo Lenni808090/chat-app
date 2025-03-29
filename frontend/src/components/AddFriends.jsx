@@ -1,7 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useFriendStore } from '../store/useFriendStore';
 
 const AddFriend = ({ isOpen, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const { searchUsers, searchResults, isLoading, sendFriendRequests } = useFriendStore();
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      searchUsers(searchQuery);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, searchUsers]);
+
+  const [requestStates, setRequestStates] = useState({});
+
+  const handleSendRequest = async (user) => {
+      setRequestStates(prev => ({ ...prev, [user._id]: true }));
+      await sendFriendRequests(user);
+      setRequestStates(prev => ({ ...prev, [user._id]: false }));
+  };
 
   return (
     <>
@@ -30,7 +47,7 @@ const AddFriend = ({ isOpen, onClose }) => {
             <div className="join w-full">
               <input 
                 type="text" 
-                placeholder="Search users..." 
+                placeholder="Search users by name or email..." 
                 className="input input-bordered join-item w-full" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -43,11 +60,43 @@ const AddFriend = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          <div className="mt-6">
-            {/* Search results will go here */}
-            <div className="text-sm text-base-content/70 text-center">
-              Start typing to search for users
-            </div>
+          <div className="mt-6 space-y-4">
+            {isLoading ? (
+              <div className="text-center">Searching...</div>
+            ) : searchResults.length > 0 ? (
+              searchResults.map(user => (
+                <div key={user._id} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={user.profilePic || "/avatar.png"}
+                      alt={user.fullName}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <h3 className="font-medium">{user.fullName}</h3>
+                      <p className="text-sm text-base-content/70">{user.email}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => handleSendRequest(user)}
+                    className="btn btn-primary btn-sm"
+                    disabled={requestStates[user._id]}
+                  >
+                    {requestStates[user._id] ? (
+                      <span className="loading loading-spinner loading-xs"></span>
+                    ) : (
+                      "Add Friend"
+                    )}
+                  </button>
+                </div>
+              ))
+            ) : searchQuery ? (
+              <div className="text-center text-base-content/70">No users found</div>
+            ) : (
+              <div className="text-sm text-base-content/70 text-center">
+                Start typing to search for users
+              </div>
+            )}
           </div>
         </div>
       </div>
